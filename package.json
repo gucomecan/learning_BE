@@ -1,0 +1,23 @@
+{
+  "name": "learning_be",
+  "version": "0.0.1",
+  "description": "Solar system journey",
+  "main": "index.js",
+  "scripts": {
+    "start": "node run index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gucomecan/learning_BE.git"
+  },
+  "author": "le-me",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gucomecan/learning_BE/issues"
+  },
+  "homepage": "https://github.com/gucomecan/learning_BE#readme",
+  "dependencies": {
+    "csv-parse": "^5.4.0"
+  }
+}
