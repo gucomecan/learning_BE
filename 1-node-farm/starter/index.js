@@ -1,7 +1,7 @@
-
-const fs = require('fs');
+const fs = require('fs')
 const http = require('http')
 const url = require('url')
+
 const replaceTemplate = require('./modules/replateTemplate')
 
 const dataOfProducts = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8')
@@ -17,15 +17,14 @@ const page404 = (res) => {
   return
 }
 
-
 // ---------- server -------------
 const server = http.createServer((req, res) => {
   const path = req.url
   const { pathname, query } = url.parse(path, true)
-  
+
   if (pathname === '/overview') {
     res.writeHead(200, { 'Content-type': 'text/html' })
-    const cardsHtml = dataObj.map(product => replaceTemplate(tempCard, product)).join('')
+    const cardsHtml = dataObj.map((product) => replaceTemplate(tempCard, product)).join('')
     const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml)
     res.end(output)
     return
@@ -34,12 +33,11 @@ const server = http.createServer((req, res) => {
   if (pathname === '/product') {
     const searchedId = query?.id
 
-
     if ([undefined, null, ''].includes(searchedId)) {
       page404(res)
     }
-    const output = dataObj.find(product => product.id == parseInt(searchedId))
-    
+    const output = dataObj.find((product) => product.id == parseInt(searchedId))
+
     if (!output) {
       page404(res)
     }
@@ -51,9 +49,8 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === '/' || pathname === '/data') {
-
     res.writeHead(200, {
-      'Content-type': 'application/json'
+      'Content-type': 'application/json',
     })
     res.end(dataOfProducts)
 
@@ -64,6 +61,5 @@ const server = http.createServer((req, res) => {
 })
 
 server.listen(8000, '127.0.0.1', () => {
-  console.log('Listening on port 8000');
+  console.log('Listening on port 8000')
 })
-
