@@ -6,13 +6,6 @@ const app = express()
 // middler
 app.use(express.json())
 
-// app.get('/', (req, res) => {
-//   res.status(404).json({ message: 'Hellow from the other side', app: 'Notours' })
-// })
-
-// app.post('/', (req, res) => {
-//   res.status(200).send('A post request response')
-// })
 const dbFile = `${__dirname}/dev-data/data/tours-simple.json`
 const tours = JSON.parse(fs.readFileSync(dbFile))
 const API_BASE = '/api/v1/tours'
@@ -46,7 +39,7 @@ const getTour = (req, res) => {
 }
 
 const createTour = (req, res) => {
-  const id = tours[tours.length - 1].id + 1
+  const id = tours.length // with the assumption id correspond to item index
   const newTour = Object.assign({ id }, req.body)
   tours.push(newTour)
   fs.writeFile(dbFile, JSON.stringify(tours), (err) => {
@@ -98,6 +91,7 @@ const deleteTour = (req, res) => {
   }
 
   fs.writeFile(dbFile, JSON.stringify(updatedTours), () => {
+    // 204 - no data
     res.status(204).json({
       status: 'success',
       data: null
@@ -105,20 +99,24 @@ const deleteTour = (req, res) => {
   })
 }
 
-// GET all
-app.get(API_BASE, getTours)
+// // GET all
+// app.get(API_BASE, getTours)
 
-// GET tour by path params
-app.get(`${API_BASE}/:id`, getTour)
+// // GET tour by path params
+// app.get(`${API_BASE}/:id`, getTour)
 
-// POST - create
-app.post(API_BASE, createTour)
+// // POST - create
+// app.post(API_BASE, createTour)
 
-// PATCH - update
-app.patch(`${API_BASE}/:id`, updateTour)
+// // PATCH - update
+// app.patch(`${API_BASE}/:id`, updateTour)
 
-// DELETE
-app.delete(`${API_BASE}/:id`, deleteTour)
+// // DELETE
+// app.delete(`${API_BASE}/:id`, deleteTour)
+
+app.route(API_BASE).get(getTours).post(createTour)
+
+app.route(`${API_BASE}/:id`).get(getTour).patch(updateTour).delete(deleteTour)
 
 const port = 3000
 app.listen(port, () => {
