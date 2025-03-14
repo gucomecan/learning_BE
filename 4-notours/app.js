@@ -1,124 +1,35 @@
-const fs = require('fs')
 const express = require('express')
-const { log } = require('console')
+const morgan = require('morgan')
+
+const tourRouter = require('./routes/tourRoutes')
+const userRouter = require('./routes/userRoutes')
 
 const app = express()
-// middler
+
+// middlewares:
+app.use(morgan('dev'))
 app.use(express.json())
 
-const dbFile = `${__dirname}/dev-data/data/tours-simple.json`
-const tours = JSON.parse(fs.readFileSync(dbFile))
-const API_BASE = '/api/v1/tours'
-
-const getTours = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: { tours }
-  })
-}
-
-const getTour = (req, res) => {
-  // NOTE: adding '?' at the end make it optional
-  // NOTE: should make a check if id exist at all
-  const paramId = req.params.id * 1
-
-  const tour = tours.find((tour) => tour.id === paramId)
-
-  if (!tour) {
-    res.status(404).json({
-      status: 'failed',
-      message: 'No such tour',
-      app: 'Notours'
-    })
-  }
-  res.status(200).json({
-    status: 'success',
-    data: { tour }
-  })
-}
-
-const createTour = (req, res) => {
-  const id = tours.length // with the assumption id correspond to item index
-  const newTour = Object.assign({ id }, req.body)
-  tours.push(newTour)
-  fs.writeFile(dbFile, JSON.stringify(tours), (err) => {
-    // 201 - created
-    res.status(201).json({
-      status: 'success',
-      data: { tour: newTour }
-    })
-  })
-}
-
-const updateTour = (req, res) => {
-  const paramId = req.params.id * 1
-  const body = req.body
-  log(body)
-  const tour = tours.find((tour) => tour.id === paramId)
-  if (!tour) {
-    res.status(404).json({
-      status: 'failed',
-      message: 'No such tour',
-      app: 'notours'
-    })
-  }
-
-  const updatedTour = { ...tour, ...body }
-  const filteredTours = tours.filter((tour) => tour.id !== paramId)
-  const updatedTours = [...filteredTours, updatedTour]
-  log(updatedTours)
-  fs.writeFile(dbFile, JSON.stringify(updatedTours), () => {
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour: updatedTour
-      }
-    })
-  })
-}
-
-const deleteTour = (req, res) => {
-  const paramId = req.params.id * 1
-  const updatedTours = tours.filter((tour) => tour.id !== paramId)
-
-  if (tours.length === updatedTours.length) {
-    res.status(404).json({
-      status: 'failed',
-      message: 'No such tour',
-      app: 'notours'
-    })
-  }
-
-  fs.writeFile(dbFile, JSON.stringify(updatedTours), () => {
-    // 204 - no data
-    res.status(204).json({
-      status: 'success',
-      data: null
-    })
-  })
-}
-
 // // GET all
-// app.get(API_BASE, getTours)
+// app.get(API_TOURS_BASE, getTours)
 
 // // GET tour by path params
-// app.get(`${API_BASE}/:id`, getTour)
+// app.get(`${API_TOURS_BASE}/:id`, getTour)
 
 // // POST - create
-// app.post(API_BASE, createTour)
+// app.post(API_TOURS_BASE, createTour)
 
 // // PATCH - update
-// app.patch(`${API_BASE}/:id`, updateTour)
+// app.patch(`${API_TOURS_BASE}/:id`, updateTour)
 
 // // DELETE
-// app.delete(`${API_BASE}/:id`, deleteTour)
+// app.delete(`${API_TOURS_BASE}/:id`, deleteTour)
 
-app.route(API_BASE).get(getTours).post(createTour)
+// routes
+const API_TOURS_BASE = '/api/v1/tours'
+const API_USERS_BASE = '/api/v1/users'
 
-app.route(`${API_BASE}/:id`).get(getTour).patch(updateTour).delete(deleteTour)
+app.use(API_TOURS_BASE, tourRouter)
+app.use(API_USERS_BASE, userRouter)
 
-const port = 3000
-app.listen(port, () => {
-  console.log(`App running on port ${port}...`)
-})
+module.exports = app
