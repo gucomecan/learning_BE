@@ -10,20 +10,8 @@ const app = express()
 app.use(morgan('dev'))
 app.use(express.json())
 
-// // GET all
-// app.get(API_TOURS_BASE, getTours)
-
-// // GET tour by path params
-// app.get(`${API_TOURS_BASE}/:id`, getTour)
-
-// // POST - create
-// app.post(API_TOURS_BASE, createTour)
-
-// // PATCH - update
-// app.patch(`${API_TOURS_BASE}/:id`, updateTour)
-
-// // DELETE
-// app.delete(`${API_TOURS_BASE}/:id`, deleteTour)
+// test static file - can be accessed on localhost:3000/overview.html (can skip the public folder in the url)
+app.use(express.static(`${__dirname}/public`))
 
 // routes
 const API_TOURS_BASE = '/api/v1/tours'

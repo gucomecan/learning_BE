@@ -5,6 +5,32 @@ const { log } = require('console')
 const dbFile = `${__dirname}/../dev-data/data/tours-simple.json`
 const tours = JSON.parse(fs.readFileSync(dbFile))
 
+exports.checkID = (req, res, next, val) => {
+  log('tour id: ', val)
+  const tour = tours.find((tour) => tour.id === +val)
+
+  if (!tour) {
+    return res.status(404).json({
+      status: 'failed',
+      message: 'No such tour',
+      app: 'Notours'
+    })
+  }
+  next()
+}
+
+exports.checkBody = (req, res, next) => {
+  log('----req ---', req)
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'failed',
+      message: 'Missing price or name'
+    })
+  }
+
+  next()
+}
+
 // route handlers/controllers
 exports.getTours = (req, res) => {
   res.status(200).json({
@@ -21,13 +47,6 @@ exports.getTour = (req, res) => {
 
   const tour = tours.find((tour) => tour.id === paramId)
 
-  if (!tour) {
-    res.status(404).json({
-      status: 'failed',
-      message: 'No such tour',
-      app: 'Notours'
-    })
-  }
   res.status(200).json({
     status: 'success',
     data: { tour }
@@ -75,17 +94,6 @@ exports.updateTour = (req, res) => {
 }
 
 exports.deleteTour = (req, res) => {
-  const paramId = req.params.id * 1
-  const updatedTours = tours.filter((tour) => tour.id !== paramId)
-
-  if (tours.length === updatedTours.length) {
-    res.status(404).json({
-      status: 'failed',
-      message: 'No such tour',
-      app: 'notours'
-    })
-  }
-
   fs.writeFile(dbFile, JSON.stringify(updatedTours), () => {
     // 204 - no data
     res.status(204).json({
