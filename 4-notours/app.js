@@ -7,7 +7,11 @@ const userRouter = require('./routes/userRoutes')
 const app = express()
 
 // middlewares:
-app.use(morgan('dev'))
+console.log('ENV: ', process.env.NODE_ENV)
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'))
+}
 app.use(express.json())
 
 // test static file - can be accessed on localhost:3000/overview.html (can skip the public folder in the url)
