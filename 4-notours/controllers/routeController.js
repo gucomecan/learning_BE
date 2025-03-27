@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 const fs = require('fs')
 
 const { log } = require('console')
@@ -7,7 +8,7 @@ const tours = JSON.parse(fs.readFileSync(dbFile))
 
 exports.checkID = (req, res, next, val) => {
   log('tour id: ', val)
-  const tour = tours.find((tour) => tour.id === +val)
+  const tour = tours.find((tourItem) => tourItem.id === +val)
 
   if (!tour) {
     return res.status(404).json({
@@ -45,7 +46,7 @@ exports.getTour = (req, res) => {
   // NOTE: should make a check if id exist at all
   const paramId = req.params.id * 1
 
-  const tour = tours.find((tour) => tour.id === paramId)
+  const tour = tours.find((tourItem) => tourItem.id === paramId)
 
   res.status(200).json({
     status: 'success',
@@ -55,9 +56,9 @@ exports.getTour = (req, res) => {
 
 exports.createTour = (req, res) => {
   const id = tours.length // with the assumption id correspond to item index
-  const newTour = Object.assign({ id }, req.body)
+  const newTour = { ...req.body, id }
   tours.push(newTour)
-  fs.writeFile(dbFile, JSON.stringify(tours), (err) => {
+  fs.writeFile(dbFile, JSON.stringify(tours), () => {
     // 201 - created
     res.status(201).json({
       status: 'success',
@@ -68,9 +69,9 @@ exports.createTour = (req, res) => {
 
 exports.updateTour = (req, res) => {
   const paramId = req.params.id * 1
-  const body = req.body
+  const { body } = req
   log(body)
-  const tour = tours.find((tour) => tour.id === paramId)
+  const tour = tours.find((tourItem) => tourItem.id === paramId)
   if (!tour) {
     res.status(404).json({
       status: 'failed',
@@ -80,7 +81,7 @@ exports.updateTour = (req, res) => {
   }
 
   const updatedTour = { ...tour, ...body }
-  const filteredTours = tours.filter((tour) => tour.id !== paramId)
+  const filteredTours = tours.filter((tourItem) => tourItem.id !== paramId)
   const updatedTours = [...filteredTours, updatedTour]
   log(updatedTours)
   fs.writeFile(dbFile, JSON.stringify(updatedTours), () => {
@@ -94,7 +95,7 @@ exports.updateTour = (req, res) => {
 }
 
 exports.deleteTour = (req, res) => {
-  fs.writeFile(dbFile, JSON.stringify(updatedTours), () => {
+  fs.writeFile(dbFile, JSON.stringify(tours.filter((tourItem) => tourItem.id !== +req.params.id)), () => {
     // 204 - no data
     res.status(204).json({
       status: 'success',
